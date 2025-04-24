@@ -1,4 +1,8 @@
 package com.devpablo.taskmanager.enums;
 
-public enum TaskPriority {
+public enum PrioridadeTarefa {
+    BAIXA,
+    MEDIA,
+    ALTA,
+    URGENTE
 }
