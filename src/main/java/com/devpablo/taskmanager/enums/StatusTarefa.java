@@ -4,7 +4,7 @@ public enum StatusTarefa {
     PENDENTE, // tarefa criada mas nao iniciada
     EM_ANDAMENTO, // tarefa sendo trabalhada
     CONCLUIDA, // tarefa finalizada
-    CANCELADA
+    CANCELADA; // tarefa cancelada
 
 
     public boolean isAtiva() {
