@@ -43,6 +43,9 @@ public class Tarefa {
     @Column(name = "data_conclusao")
     private LocalDateTime dataConclusao;
 
+    @Column(name = "data_atualizacao")
+    private LocalDateTime dataAtualizacao;
+
     @Column(name = "data_vencimento")
     private LocalDateTime dataVencimento;
 
