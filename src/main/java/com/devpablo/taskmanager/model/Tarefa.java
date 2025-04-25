@@ -4,11 +4,18 @@ import com.devpablo.taskmanager.enums.CategoriaTarefa;
 import com.devpablo.taskmanager.enums.PrioridadeTarefa;
 import com.devpablo.taskmanager.enums.StatusTarefa;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tarefas")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
+@ToString(exclude = "responsavel")
 public class Tarefa {
 
     @Id
