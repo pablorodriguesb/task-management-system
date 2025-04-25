@@ -2,7 +2,9 @@ package com.devpablo.taskmanager.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.cglib.core.Local;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,5 +34,10 @@ public class Usuario {
     @OneToMany(mappedBy = "responsavel", cascade = CascadeType.ALL)
     private List<Tarefa> tarefas = new ArrayList<>();
 
+    @Column(name = "data_criacao")
+    private LocalDateTime dataCriacao;
+
+    @Column(name = "data_atualizacao")
+    private LocalDateTime dataAtualizacao;
 
 }
