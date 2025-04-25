@@ -1,0 +1,13 @@
+com\devpablo\taskmanager\enums\PrioridadeTarefa.class
+com\devpablo\taskmanager\model\Usuario.class
+com\devpablo\taskmanager\TaskmanagerApplication.class
+com\devpablo\taskmanager\dto\TaskDTO.class
+com\devpablo\taskmanager\model\Tarefa.class
+com\devpablo\taskmanager\repository\CategoriaRepository.class
+com\devpablo\taskmanager\model\Categoria.class
+com\devpablo\taskmanager\dto\UserDTO.class
+com\devpablo\taskmanager\repository\TarefaRepository.class
+com\devpablo\taskmanager\dto\CategoryDTO.class
+com\devpablo\taskmanager\enums\CategoriaTarefa.class
+com\devpablo\taskmanager\enums\StatusTarefa.class
+com\devpablo\taskmanager\repository\UsuarioRepository.class

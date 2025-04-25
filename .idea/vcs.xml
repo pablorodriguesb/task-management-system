@@ -3,6 +3,5 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/frontend" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/frontend/adminlte-3-react" vcs="Git" />
   </component>
 </project>
