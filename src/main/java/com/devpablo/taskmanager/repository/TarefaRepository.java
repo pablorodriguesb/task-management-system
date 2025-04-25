@@ -3,6 +3,8 @@ package com.devpablo.taskmanager.repository;
 import com.devpablo.taskmanager.enums.StatusTarefa;
 import com.devpablo.taskmanager.model.Tarefa;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,12 +12,16 @@ import java.util.List;
 
 @Repository
 public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
-    // Busca tarefas pelo ID de usuário
-    List<Tarefa> buscarPorUsuarioId(Long usuarioId);
 
-    // Busca tarefas pelo status
-    List<Tarefa> buscarPorStatus(StatusTarefa status);
+    @Query("SELECT t FROM Tarefa t WHERE t.responsavel.id = :usuarioId")
+    List<Tarefa> buscarPorUsuarioId(@Param("usuarioId") Long usuarioId);
 
-    // Busca tarefas pelo ID do usuario e status
-    List<Tarefa> buscarPorUsuarioIdEStatus(Long usuarioId, StatusTarefa status);
+    @Query("SELECT t FROM Tarefa t WHERE t.status = :status")
+    List<Tarefa> buscarPorStatus(@Param("status") StatusTarefa status);
+
+    @Query("SELECT t FROM Tarefa t WHERE t.responsavel.id = :usuarioId AND t.status = :status")
+    List<Tarefa> buscarPorUsuarioIdEStatus(
+            @Param("usuarioId") Long usuarioId,
+            @Param("status") StatusTarefa status
+    );
 }
