@@ -1,7 +1,10 @@
 package com.devpablo.taskmanager.model;
 
+import com.devpablo.taskmanager.enums.CategoriaTarefa;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "categorias")
@@ -17,10 +20,19 @@ public class Categoria {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    private CategoriaTarefa tipo; // opcional para classificacao interna
+
     @Column(nullable = false, unique = true)
     private String nome;
 
     @Column
     private String descricao;
+
+    @Column(name = "data_criacao")
+    private LocalDateTime dataCriacao;
+
+    @Column(name = "data_atualizacao")
+    private LocalDateTime dataAtualizacao;
 
 }

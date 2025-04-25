@@ -1,5 +1,6 @@
 package com.devpablo.taskmanager.repository;
 
+import com.devpablo.taskmanager.enums.CategoriaTarefa;
 import com.devpablo.taskmanager.enums.StatusTarefa;
 import com.devpablo.taskmanager.model.Tarefa;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,4 +25,6 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
             @Param("usuarioId") Long usuarioId,
             @Param("status") StatusTarefa status
     );
+
+    Long countByCategoria_Id(Long categoriaId);
 }

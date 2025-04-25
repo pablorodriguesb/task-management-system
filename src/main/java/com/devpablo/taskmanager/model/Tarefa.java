@@ -34,9 +34,6 @@ public class Tarefa {
     @Enumerated(EnumType.STRING)
     private PrioridadeTarefa prioridade;
 
-    @Enumerated(EnumType.STRING)
-    private CategoriaTarefa categoria;
-
     @Column(name = "data_criacao")
     private LocalDateTime dataCriacao;
 
@@ -52,4 +49,8 @@ public class Tarefa {
     @ManyToOne
     @JoinColumn(name = "usuario_id")
     private Usuario responsavel;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
 }

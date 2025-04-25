@@ -11,6 +11,7 @@ import java.util.List;
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
-    @Query("SELECT c FROM Categoria c WHERE c.nome = :nome")
+    @Query("SELECT c FROM Categoria c WHERE LOWER(c.nome) LIKE LOWER(CONCAT('%', :nome, '%'))")
     List<Categoria> buscarPorNome(@Param("nome") String nome);
+
 }
