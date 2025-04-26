@@ -21,6 +21,18 @@ public class TarefaService {
     public TarefaService(TarefaRepository tarefaRepository) {
         this.tarefaRepository = tarefaRepository;
     }
+        // Metodo para buscar especificos
+        public List<Tarefa> buscarPorStatus(StatusTarefa status) {
+            return tarefaRepository.buscarPorStatus(status);
+        }
+
+        public List<Tarefa> buscarPorUsuario(Long usuarioId) {
+            return tarefaRepository.buscarPorUsuarioId(usuarioId);
+        }
+
+        public List<Tarefa> buscarPorUsuarioEStatus(Long usuarioId, StatusTarefa status) {
+            return tarefaRepository.buscarPorUsuarioIdEStatus(usuarioId, status);
+        }
 
         // Metodo para buscar todas as tarefas
         public List<Tarefa> buscarTodasTarefas() {

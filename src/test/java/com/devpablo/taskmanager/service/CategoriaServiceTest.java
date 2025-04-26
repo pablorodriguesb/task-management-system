@@ -3,6 +3,7 @@ package com.devpablo.taskmanager.service;
 import com.devpablo.taskmanager.model.Categoria;
 import com.devpablo.taskmanager.repository.CategoriaRepository;
 import com.devpablo.taskmanager.repository.TarefaRepository;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Assertions;
@@ -41,7 +42,7 @@ public class CategoriaServiceTest {
         // configura o mock do repositorio de categorias
         Mockito.when(categoriaRepository.findById(idCategoria))
                 .thenReturn(Optional.of(categoriaMock));
-        
+
         Mockito.when(tarefaRepository.countByCategoria_Id(idCategoria)).thenReturn(0L);
 
         // execucao
@@ -49,6 +50,113 @@ public class CategoriaServiceTest {
 
         // verificacao
         Assertions.assertTrue(podeExcluir, "Deve permitir excluir categoria sem tarefas vinculadas");
+    }
+
+    @Test
+    void deveBuscarTodasCategorias() {
+
+        // arrange
+        List<Categoria> categoriasMock = List.of(new Categoria(), new Categoria());
+
+    Mockito.when(categoriaRepository.findAll()).thenReturn(categoriasMock);
+
+        // act
+        List<Categoria> resultado = categoriaService.buscarTodasCategorias();
+
+        // assert
+        Assertions.assertEquals(2, resultado.size());
+    }
+
+    @Test
+    void deveBuscarCategoriaPorIdExistente() {
+        // arrange
+        Long id = 1L;
+        Categoria categoriaMock = new Categoria();
+        categoriaMock.setId(id);
+
+    Mockito.when(categoriaRepository.findById(id)).thenReturn(Optional.of(categoriaMock));
+
+        // act
+        Optional<Categoria> resultado = categoriaService.buscarPorId(id);
+
+        // assert
+        Assertions.assertTrue(resultado.isPresent());
+        Assertions.assertEquals(id, resultado.get().getId());
+    }
+
+    @Test
+    void deveRetornarVazioQuandoBuscarPorIdInexistente() {
+        // arrange
+        Long id = 999L;
+
+    Mockito.when(categoriaRepository.findById(id)).thenReturn(Optional.empty());
+
+        // act
+        Optional<Categoria> resultado = categoriaService.buscarPorId(id);
+
+        // assert
+        Assertions.assertTrue(resultado.isEmpty());
+    }
+
+    @Test
+    void deveExcluirCategoriaQuandoPossivel() {
+        Long id = 1L;
+        Categoria categoriaMock = new Categoria();
+        categoriaMock.setId(id);
+
+    Mockito.when(categoriaRepository.findById(id)).thenReturn(Optional.of(categoriaMock));
+
+    Mockito.when(tarefaRepository.countByCategoria_Id(id)).thenReturn(0L);
+
+        // act
+        categoriaService.excluir(id);
+
+        // assert
+        Mockito.verify(categoriaRepository).delete(categoriaMock);
+    }
+
+    @Test
+    void deveLancarExcecaoAoExcluirCategoriaInexistente() {
+        // arrange
+        Long id = 999L;
+
+    Mockito.when(categoriaRepository.findById(id)).thenReturn(Optional.empty());
+
+        // act e assert
+        assertThrows(RuntimeException.class, () -> categoriaService.excluir(id));
+    }
+
+    @Test
+    void deveBuscarCategoriasPorNome() {
+        // arrange
+        String nome = "Estudo";
+        List<Categoria> categoriasMock = List.of(new Categoria());
+
+    Mockito.when(categoriaRepository.buscarPorNome(nome)).thenReturn(categoriasMock);
+
+        // act
+        List<Categoria> resultado = categoriaService.buscarPorNome(nome);
+
+        // assert
+        Assertions.assertEquals(1, resultado.size());
+    }
+
+    @Test
+    void deveSalvarNovaCategoria() {
+        // arrange
+        Categoria novaCategoria = new Categoria();
+        novaCategoria.setNome("Nova");
+
+    Mockito.when(categoriaRepository.buscarPorNome("Nova")).thenReturn(List.of());
+
+    Mockito.when(categoriaRepository.save(Mockito.any(Categoria.class))).thenReturn(novaCategoria);
+
+    // act
+    Categoria resultado = categoriaService.salvar(novaCategoria);
+
+    // assert
+    Assertions.assertNotNull(resultado.getDataCriacao());
+    Assertions.assertNull(resultado.getDataAtualizacao());
     }
 
     @Test
