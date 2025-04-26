@@ -1,6 +1,5 @@
 package com.devpablo.taskmanager.model;
 
-import com.devpablo.taskmanager.enums.CategoriaTarefa;
 import com.devpablo.taskmanager.enums.PrioridadeTarefa;
 import com.devpablo.taskmanager.enums.StatusTarefa;
 import jakarta.persistence.*;
