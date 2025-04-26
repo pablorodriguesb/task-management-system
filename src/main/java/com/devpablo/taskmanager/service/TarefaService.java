@@ -17,7 +17,6 @@ public class TarefaService {
 
     // injetando as dependencias do repositorio
     private final TarefaRepository tarefaRepository;
-
     @Autowired
     public TarefaService(TarefaRepository tarefaRepository) {
         this.tarefaRepository = tarefaRepository;

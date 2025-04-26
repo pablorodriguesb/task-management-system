@@ -23,16 +23,27 @@ public class CategoriaService {
         this.categoriaRepository = categoriaRepository;
         this.tarefaRepository = tarefaRepository;
     }
-    // metodo de busca
+    // metodo de buscar todas categorias
     public List<Categoria> buscarTodasCategorias() {
         return categoriaRepository.findAll();
     }
-    // metodo de busca
+    // metodo de buscar por id
     public Optional<Categoria> buscarPorId(Long id) {
         return categoriaRepository.findById(id);
     }
-    // metodo de persistencia
+    // metodo de persistencia para salvar
     public Categoria salvar(Categoria categoria) {
+        // verificar se ja possui uma categoria com o mesmo nome (exceto maiusculas)
+        List<Categoria> existentes =
+                categoriaRepository.buscarPorNome(categoria.getNome());
+
+        boolean nomeRepetido = existentes.stream()
+                .anyMatch(cat -> cat.getNome().equalsIgnoreCase(categoria.getNome()));
+
+        if (nomeRepetido) {
+            throw new RuntimeException("Já existe uma categoria com o nome " + categoria.getNome());
+        }
+
         if(categoria.getId() == null) {
             categoria.setDataCriacao(LocalDateTime.now());
         } else {
@@ -40,7 +51,7 @@ public class CategoriaService {
         }
         return categoriaRepository.save(categoria);
     }
-    // metodo de persistencia
+    // metodo de persistencia para excluir
     public void excluir(Long id) {
         Categoria categoria = categoriaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada " + id));
