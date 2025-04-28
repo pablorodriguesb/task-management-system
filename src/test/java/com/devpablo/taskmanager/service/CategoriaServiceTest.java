@@ -4,7 +4,10 @@ import com.devpablo.taskmanager.model.Categoria;
 import com.devpablo.taskmanager.repository.CategoriaRepository;
 import com.devpablo.taskmanager.repository.TarefaRepository;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,10 +44,10 @@ public class CategoriaServiceTest {
         categoriaMock.setNome("Teste");
 
         // configura o mock do repositorio de categorias
-        Mockito.when(categoriaRepository.findById(idCategoria))
+        when(categoriaRepository.findById(idCategoria))
                 .thenReturn(Optional.of(categoriaMock));
 
-        Mockito.when(tarefaRepository.countByCategoria_Id(idCategoria)).thenReturn(0L);
+        when(tarefaRepository.countByCategoria_Id(idCategoria)).thenReturn(0L);
 
         // execucao
         boolean podeExcluir = categoriaService.podeSerExcluida(idCategoria);
@@ -58,7 +62,7 @@ public class CategoriaServiceTest {
         // arrange
         List<Categoria> categoriasMock = List.of(new Categoria(), new Categoria());
 
-    Mockito.when(categoriaRepository.findAll()).thenReturn(categoriasMock);
+    when(categoriaRepository.findAll()).thenReturn(categoriasMock);
 
         // act
         List<Categoria> resultado = categoriaService.buscarTodasCategorias();
@@ -74,7 +78,7 @@ public class CategoriaServiceTest {
         Categoria categoriaMock = new Categoria();
         categoriaMock.setId(id);
 
-    Mockito.when(categoriaRepository.findById(id)).thenReturn(Optional.of(categoriaMock));
+    when(categoriaRepository.findById(id)).thenReturn(Optional.of(categoriaMock));
 
         // act
         Optional<Categoria> resultado = categoriaService.buscarPorId(id);
@@ -89,7 +93,7 @@ public class CategoriaServiceTest {
         // arrange
         Long id = 999L;
 
-    Mockito.when(categoriaRepository.findById(id)).thenReturn(Optional.empty());
+    when(categoriaRepository.findById(id)).thenReturn(Optional.empty());
 
         // act
         Optional<Categoria> resultado = categoriaService.buscarPorId(id);
@@ -104,9 +108,9 @@ public class CategoriaServiceTest {
         Categoria categoriaMock = new Categoria();
         categoriaMock.setId(id);
 
-    Mockito.when(categoriaRepository.findById(id)).thenReturn(Optional.of(categoriaMock));
+    when(categoriaRepository.findById(id)).thenReturn(Optional.of(categoriaMock));
 
-    Mockito.when(tarefaRepository.countByCategoria_Id(id)).thenReturn(0L);
+    when(tarefaRepository.countByCategoria_Id(id)).thenReturn(0L);
 
         // act
         categoriaService.excluir(id);
@@ -120,7 +124,7 @@ public class CategoriaServiceTest {
         // arrange
         Long id = 999L;
 
-    Mockito.when(categoriaRepository.findById(id)).thenReturn(Optional.empty());
+    when(categoriaRepository.findById(id)).thenReturn(Optional.empty());
 
         // act e assert
         assertThrows(RuntimeException.class, () -> categoriaService.excluir(id));
@@ -132,7 +136,7 @@ public class CategoriaServiceTest {
         String nome = "Estudo";
         List<Categoria> categoriasMock = List.of(new Categoria());
 
-    Mockito.when(categoriaRepository.buscarPorNome(nome)).thenReturn(categoriasMock);
+    when(categoriaRepository.buscarPorNome(nome)).thenReturn(categoriasMock);
 
         // act
         List<Categoria> resultado = categoriaService.buscarPorNome(nome);
@@ -147,16 +151,16 @@ public class CategoriaServiceTest {
         Categoria novaCategoria = new Categoria();
         novaCategoria.setNome("Nova");
 
-    Mockito.when(categoriaRepository.buscarPorNome("Nova")).thenReturn(List.of());
+    when(categoriaRepository.buscarPorNome("Nova")).thenReturn(List.of());
 
-    Mockito.when(categoriaRepository.save(Mockito.any(Categoria.class))).thenReturn(novaCategoria);
+    when(categoriaRepository.save(any(Categoria.class))).thenReturn(novaCategoria);
 
     // act
     Categoria resultado = categoriaService.salvar(novaCategoria);
 
     // assert
     Assertions.assertNotNull(resultado.getDataCriacao());
-    Assertions.assertNull(resultado.getDataAtualizacao());
+    assertNull(resultado.getDataAtualizacao());
     }
 
     @Test
@@ -168,10 +172,10 @@ public class CategoriaServiceTest {
         categoriaMock.setId(idCategoria);
         categoriaMock.setNome("Urgente");
         // configura o mock para retornar a categoria falsa quando buscar ID
-        Mockito.when(categoriaRepository.findById(idCategoria))
+        when(categoriaRepository.findById(idCategoria))
                         .thenReturn(Optional.of(categoriaMock));
         // configura o mock para retornar 0(zero) tarefas vinculadas
-        Mockito.when(tarefaRepository.countByCategoria_Id(idCategoria)).thenReturn(3L);
+        when(tarefaRepository.countByCategoria_Id(idCategoria)).thenReturn(3L);
 
         // chama o metodo real que esta sendo testado
         boolean podeExcluir =
@@ -181,6 +185,19 @@ public class CategoriaServiceTest {
         Assertions.assertFalse(podeExcluir, "Nao deve permitir excluir categoria com tarefas vinculadas");
     }
 
+    @Test
+    void deveAtualizarCategoriaSemAlterarNome() {
+        Categoria existente = new Categoria();
+        existente.setId(1L);
+        existente.setNome("Estudo");
+        existente.setDataCriacao(LocalDateTime.now());
+
+        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(categoriaRepository.save(any())).thenReturn(existente);
+
+        Categoria atualizada = categoriaService.salvar(existente);
+        assertNull(atualizada.getDataAtualizacao()); // deve alterar apos o ajuste no service
+    }
     @Test
     void naoDeveSalvarCategoriaComNomeRepetido() {
         // PREPARACAO
@@ -193,7 +210,7 @@ public class CategoriaServiceTest {
         List<Categoria> categoriasExistentes = List.of(existente);
 
         // configura o mock para ertornar a lista de categorias existentes
-        Mockito.when(categoriaRepository.buscarPorNome("Urgente")).thenReturn(categoriasExistentes);
+        when(categoriaRepository.buscarPorNome("Urgente")).thenReturn(categoriasExistentes);
 
         // executa e verifica
         assertThrows(RuntimeException.class, () -> {

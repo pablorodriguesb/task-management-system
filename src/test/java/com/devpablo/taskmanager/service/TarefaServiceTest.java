@@ -2,6 +2,7 @@ package com.devpablo.taskmanager.service;
 
 import com.devpablo.taskmanager.enums.StatusTarefa;
 import com.devpablo.taskmanager.model.Tarefa;
+import com.devpablo.taskmanager.model.Usuario;
 import com.devpablo.taskmanager.repository.TarefaRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TarefaServiceTest {
@@ -33,7 +37,7 @@ public class TarefaServiceTest {
         Tarefa novaTarefa = new Tarefa();
 
         // configura o mock para retornar a tarefa com ID que foi simulado
-        Mockito.when(tarefaRepository.save(Mockito.any(Tarefa.class)))
+        when(tarefaRepository.save(Mockito.any(Tarefa.class)))
                 .thenAnswer(inv -> {
                     Tarefa t = inv.getArgument(0);
                     t.setId(1L);
@@ -58,7 +62,7 @@ public class TarefaServiceTest {
         tarefaExistente.setDataCriacao(LocalDateTime.now().minusDays(1)); // data antiga
 
         // configura o mock para retornar a tarefa atualizada
-        Mockito.when(tarefaRepository.save(tarefaExistente)).thenReturn(tarefaExistente);
+        when(tarefaRepository.save(tarefaExistente)).thenReturn(tarefaExistente);
 
         // act
         Tarefa resultado = tarefaService.salvar(tarefaExistente);
@@ -66,6 +70,14 @@ public class TarefaServiceTest {
         // assert: data da atualizacao tem que ser preenchida
         Assertions.assertNotNull(resultado.getDataAtualizacao());
     }
+        @Test
+        void naoDeveSalvarTarefaSemResponsavel() {
+        Tarefa tarefa = new Tarefa();
+        tarefa.setTitulo("Teste");
+
+        assertThrows(RuntimeException.class, () -> tarefaService.salvar(tarefa));
+        }
+
         // TESTES PARA CONCLUIR TAREFA <<
         @Test
         void deveConcluirTarefaComStatusEDatasCorretas() {
@@ -76,9 +88,9 @@ public class TarefaServiceTest {
 
             // configurando o mock para encontrar a tarefa
 
-            Mockito.when(tarefaRepository.findById(3L)).thenReturn(Optional.of(tarefa));
+            when(tarefaRepository.findById(3L)).thenReturn(Optional.of(tarefa));
 
-            Mockito.when(tarefaRepository.save(Mockito.any(Tarefa.class))).thenReturn(tarefa);
+            when(tarefaRepository.save(Mockito.any(Tarefa.class))).thenReturn(tarefa);
 
             // act
             Tarefa resultado = tarefaService.concluir(3L);
@@ -94,10 +106,10 @@ public class TarefaServiceTest {
         void naoDeveConcluirTarefaInexistente() {
 
             // arrange: id nao existe
-            Mockito.when(tarefaRepository.findById(999L)).thenReturn(Optional.empty());
+            when(tarefaRepository.findById(999L)).thenReturn(Optional.empty());
 
             // act e assert: deve lançar exceção
-            Assertions.assertThrows(IllegalArgumentException.class, () ->
+            assertThrows(IllegalArgumentException.class, () ->
                     tarefaService.concluir(999L)
             );
         }
@@ -109,7 +121,7 @@ public class TarefaServiceTest {
             // arrange: lista mockada
             List<Tarefa> tarefasMock = List.of(new Tarefa(), new Tarefa());
 
-            Mockito.when(tarefaRepository.findAll()).thenReturn(tarefasMock);
+            when(tarefaRepository.findAll()).thenReturn(tarefasMock);
 
             // act
             List<Tarefa> resultado = tarefaService.buscarTodasTarefas();
@@ -126,7 +138,7 @@ public class TarefaServiceTest {
             Tarefa tarefaMock = new Tarefa();
             tarefaMock.setId(4L);
 
-        Mockito.when(tarefaRepository.findById(4L)).thenReturn(Optional.of(tarefaMock));
+        when(tarefaRepository.findById(4L)).thenReturn(Optional.of(tarefaMock));
 
             // act
             Optional<Tarefa> resultado = tarefaService.buscarPorId(4L);
@@ -144,7 +156,7 @@ public class TarefaServiceTest {
             List<Tarefa> tarefasMock = List.of(tarefa1, tarefa2);
 
             // configurando o mock para retornar a lista quando o metodo for chamado
-        Mockito.when(tarefaRepository.buscarPorUsuarioId(1L)).thenReturn(tarefasMock);
+        when(tarefaRepository.buscarPorUsuarioId(1L)).thenReturn(tarefasMock);
 
             // act: chama o metodo do service
             List<Tarefa> resultado = tarefaService.buscarPorUsuario(1L);
@@ -158,7 +170,7 @@ public class TarefaServiceTest {
             // arrange
             List<Tarefa> tarefasMock = List.of(new Tarefa(), new Tarefa());
 
-        Mockito.when(tarefaRepository.buscarPorStatus(StatusTarefa.PENDENTE)).thenReturn(tarefasMock);
+        when(tarefaRepository.buscarPorStatus(StatusTarefa.PENDENTE)).thenReturn(tarefasMock);
 
             // act
             List<Tarefa> resultado = tarefaService.buscarPorStatus(StatusTarefa.PENDENTE);
@@ -174,7 +186,7 @@ public class TarefaServiceTest {
             List<Tarefa> tarefasMock = List.of(tarefa);
 
         // configura o mock
-        Mockito.when(tarefaRepository.buscarPorUsuarioIdEStatus(1L, StatusTarefa.PENDENTE))
+        when(tarefaRepository.buscarPorUsuarioIdEStatus(1L, StatusTarefa.PENDENTE))
                 .thenReturn(tarefasMock);
 
         // act
@@ -183,4 +195,6 @@ public class TarefaServiceTest {
         // assert
         Assertions.assertEquals(1, resultado.size());
         }
+
+
 }

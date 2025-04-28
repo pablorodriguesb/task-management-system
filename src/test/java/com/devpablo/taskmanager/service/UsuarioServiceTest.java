@@ -126,5 +126,22 @@ public class UsuarioServiceTest {
         assertThrows(RuntimeException.class, () -> usuarioService.excluirPorId(2L));
         verify(usuarioRepository, never()).delete(any());
     }
+
+    // Teste para SensitiveCase
+    @Test
+    void devePermitirAtualizarEmailParaMesmoEmailEmMaiusculas() {
+        Usuario existente = new Usuario();
+        existente.setId(1L);
+        existente.setEmail("teste@dev.com");
+
+        when(usuarioRepository.buscarPorEmail("TESTE@DEV.COM")).thenReturn(Optional.of(existente));
+
+        Usuario atualizado = new Usuario();
+        atualizado.setEmail("TESTE@DEV.COM");
+        atualizado.setId(1L);
+
+        // tem que permitir pois é o mesmo usuário
+        assertDoesNotThrow(() -> usuarioService.salvar(atualizado));
+    }
 }
 
