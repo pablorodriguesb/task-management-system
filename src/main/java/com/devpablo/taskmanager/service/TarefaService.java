@@ -55,6 +55,38 @@ public class TarefaService {
             }
             return tarefaRepository.save(tarefa);
         }
+
+        @Transactional
+        public Tarefa atualizar(Long id, Tarefa tarefaAtualizada) {
+            Tarefa tarefaExistente = tarefaRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
+
+            // atualiza apenas os campos permitidos
+            tarefaExistente.setTitulo(tarefaAtualizada.getTitulo());
+            tarefaExistente.setDescricao(tarefaAtualizada.getDescricao());
+            tarefaExistente.setStatus(tarefaAtualizada.getStatus());
+            tarefaExistente.setPrioridade(tarefaAtualizada.getPrioridade());
+
+            tarefaExistente.setDataVencimento(tarefaAtualizada.getDataVencimento());
+            tarefaExistente.setDataAtualizacao(LocalDateTime.now());
+
+            // mantem os relacionamentos existentes se nao houver fornecidos no DTO
+            if (tarefaAtualizada.getResponsavel() != null) {
+                tarefaExistente.setResponsavel(tarefaAtualizada.getResponsavel());
+            }
+            if (tarefaAtualizada.getCategoria() != null) {
+                tarefaExistente.setCategoria(tarefaAtualizada.getCategoria());
+            }
+            return tarefaRepository.save(tarefaExistente);
+        }
+
+        @Transactional
+        public void excluir(Long id) {
+            Tarefa tarefa = tarefaRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
+            tarefaRepository.delete(tarefa);
+    }
+
         @Transactional
         public Tarefa concluir(Long id) {
 

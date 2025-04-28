@@ -38,10 +38,32 @@ public class TarefaController {
                 .toList();
     }
 
+    @GetMapping("/{id}")
+    public TarefaResponseDTO buscarPorId(@PathVariable Long id) {
+        Tarefa tarefa = tarefaService.buscarPorId(id)
+                .orElseThrow(() -> new RuntimeException("Tarefa não encontrada"));
+        return converterParaDTO(tarefa);
+    }
+
+    @PutMapping("/{id}")
+    public TarefaResponseDTO atualizar(@PathVariable Long id, @Valid
+                                       @RequestBody TarefaRequestDTO dto) {
+        Tarefa tarefaAtualizada = converterParaEntidade(dto);
+        Tarefa salva = tarefaService.atualizar(id, tarefaAtualizada);
+        return converterParaDTO(salva);
+    }
+
+
     @PutMapping("/{id}/concluir")
     public TarefaResponseDTO concluir(@PathVariable Long id) {
         Tarefa tarefa = tarefaService.concluir(id);
         return converterParaDTO(tarefa);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluir(@PathVariable Long id) {
+        tarefaService.excluir(id);
     }
 
     // Metodos auxiliares

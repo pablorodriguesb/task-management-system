@@ -44,6 +44,7 @@ public class UsuarioController {
                 .toList();
     }
 
+
     // Metodo auxiliar para converter entidade em DTO de resposta
     private UsuarioResponseDTO converterParaResponseDTO(Usuario usuario) {
         return new UsuarioResponseDTO(
