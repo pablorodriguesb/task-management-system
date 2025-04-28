@@ -3,7 +3,9 @@ package com.devpablo.taskmanager.service;
 import com.devpablo.taskmanager.model.Usuario;
 import com.devpablo.taskmanager.repository.UsuarioRepository;
 
+import com.devpablo.taskmanager.security.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,10 +17,12 @@ import java.util.Optional;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
     // metodo para buscar todos os usuarios
     public List<Usuario> buscarTodosUsuarios() {
@@ -29,13 +33,23 @@ public class UsuarioService {
         return usuarioRepository.findById(id);
     }
 
+    public Optional<Usuario> buscarPorEmail(String email) {
+        return usuarioRepository.buscarPorEmail(email);
+    }
+
     public Usuario salvar(Usuario usuario) {
         validarEmailUnico(usuario);
+
+        // Codificar a senha antes de salvar
+        if (usuario.getSenha() != null) {
+            usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+        }
+
         // verificando se é um novo registro ou atualizacao
         if(usuario.getId() == null) {
             usuario.setDataCriacao(LocalDateTime.now()); // novos usuarios recebem dataCriacao
         } else {
-            usuario.setDataAtualizacao(LocalDateTime.now()); // novos usuarios recebem dataAtualizacao
+            usuario.setDataAtualizacao(LocalDateTime.now()); // atualizações recebem dataAtualizacao
         }
         return usuarioRepository.save(usuario);
     }
@@ -56,5 +70,7 @@ public class UsuarioService {
         if (existente.isPresent() && !existente.get().getId().equals(usuario.getId())) {
             throw new RuntimeException("Já existe usuário com este e-mail");
         }
+
+
     }
 }

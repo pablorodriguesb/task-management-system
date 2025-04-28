@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -51,6 +52,15 @@ public class UsuarioController {
                 .stream()
                 .map(this::converterParaResponseDTO)
                 .toList();
+    }
+
+    // Endpoint para buscar o usuario atual
+    @GetMapping("/atual")
+    public UsuarioResponseDTO getUsuarioAtual(Principal principal) {
+        String email = principal.getName();
+        Usuario usuario = usuarioService.buscarPorEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        return converterParaResponseDTO(usuario);
     }
 
 
