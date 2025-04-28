@@ -35,6 +35,15 @@ public class UsuarioController {
         return converterParaResponseDTO(salvo);
     }
 
+    @PutMapping("/{id}")
+    public UsuarioResponseDTO atualizar(@PathVariable Long id, @Valid
+                                        @RequestBody UsuarioRequestDTO dto) {
+        Usuario usuario = converterParaEntidade(dto);
+        usuario.setId(id);
+        Usuario atualizado = usuarioService.salvar(usuario);
+        return converterParaResponseDTO(atualizado);
+    }
+
     // Endpoint para listar todos os usuarios
     @GetMapping
     public List<UsuarioResponseDTO> listarTodos() {
@@ -52,5 +61,13 @@ public class UsuarioController {
                 usuario.getNome(),
                 usuario.getEmail(),
                 usuario.getDataCriacao());
+    }
+
+    private Usuario converterParaEntidade(UsuarioRequestDTO dto) {
+        Usuario usuario = new Usuario();
+        usuario.setNome(dto.nome());
+        usuario.setEmail(dto.email());
+        usuario.setSenha(dto.senha());
+        return usuario;
     }
 }

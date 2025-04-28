@@ -34,10 +34,13 @@ public class CategoriaController {
     @PutMapping("/{id}")
     public CategoriaResponseDTO atualizar(@PathVariable Long id, @Valid
                                           @RequestBody CategoriaRequestDTO dto) {
-        Categoria categoria = converterParaEntidade(dto);
-        categoria.setId(id);
-        Categoria atualizada = categoriaService.salvar(categoria);
-        return converterParaDTO(atualizada);
+        Categoria existente = categoriaService.buscarPorId(id)
+                .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+
+        existente.setNome(dto.nome());
+        existente.setDescricao(dto.descricao());
+
+        return converterParaDTO(categoriaService.salvar(existente));
     }
 
     @GetMapping
@@ -48,6 +51,15 @@ public class CategoriaController {
                 .toList();
     }
 
+    @GetMapping("/{id}")
+    public CategoriaResponseDTO buscarPorId(@PathVariable Long id) {
+        Categoria categoria = categoriaService.buscarPorId(id)
+                .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
+        return converterParaDTO(categoria);
+    }
+
+
+    // metodos auxiliares
     private Categoria converterParaEntidade(CategoriaRequestDTO dto) {
         Categoria categoria = new Categoria();
         categoria.setNome(dto.nome());

@@ -38,7 +38,10 @@ public class CategoriaService {
                 categoriaRepository.buscarPorNome(categoria.getNome());
 
         boolean nomeRepetido = existentes.stream()
-                .anyMatch(cat -> cat.getNome().equalsIgnoreCase(categoria.getNome()));
+                .anyMatch(cat ->
+                        !cat.getId().equals(categoria.getId()) &&
+                                cat.getNome().equalsIgnoreCase(categoria.getNome())
+                );
 
         if (nomeRepetido) {
             throw new RuntimeException("Já existe uma categoria com o nome " + categoria.getNome());

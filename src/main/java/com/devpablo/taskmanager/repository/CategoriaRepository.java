@@ -13,5 +13,5 @@ public interface CategoriaRepository extends JpaRepository<Categoria, Long> {
 
     @Query("SELECT c FROM Categoria c WHERE LOWER(c.nome) = LOWER(:nome)")
     List<Categoria> buscarPorNome(@Param("nome") String nome);
-
 }
+

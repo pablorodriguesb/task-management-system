@@ -50,9 +50,10 @@ public class UsuarioService {
 
     // validacao de email único antes de salvar
     private void validarEmailUnico(Usuario usuario) {
-        if (usuarioRepository.existePorEmail(usuario.getEmail())) {
+        Optional<Usuario> existente =
+                usuarioRepository.buscarPorEmail(usuario.getEmail());
+        if (existente.isPresent() && !existente.get().getId().equals(usuario.getId())) {
             throw new RuntimeException("Já existe usuário com este e-mail");
-
         }
     }
 }
