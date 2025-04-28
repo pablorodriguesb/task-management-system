@@ -35,7 +35,10 @@ public class TarefaServiceTest {
     void deveSalvarTarefaValidaComDataCriacao() {
         // seguindo o padrao AAA, comecamos no arrange (preparando dados e mocks)
         Tarefa novaTarefa = new Tarefa();
-
+        // adicionando um responsavel mockado
+        Usuario responsavel = new Usuario();
+        responsavel.setId(1L);
+        novaTarefa.setResponsavel(responsavel);
         // configura o mock para retornar a tarefa com ID que foi simulado
         when(tarefaRepository.save(Mockito.any(Tarefa.class)))
                 .thenAnswer(inv -> {
@@ -58,8 +61,10 @@ public class TarefaServiceTest {
         // arrange: tarefa ja existe (tem ID)
         Tarefa tarefaExistente = new Tarefa();
         tarefaExistente.setId(2L);
-
-        tarefaExistente.setDataCriacao(LocalDateTime.now().minusDays(1)); // data antiga
+        // adicionando um responsavel mockado
+        Usuario responsavel = new Usuario();
+        responsavel.setId(1L);
+        tarefaExistente.setResponsavel(responsavel);
 
         // configura o mock para retornar a tarefa atualizada
         when(tarefaRepository.save(tarefaExistente)).thenReturn(tarefaExistente);

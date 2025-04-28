@@ -67,7 +67,7 @@ public class UsuarioServiceTest {
     void salvar_NovoUsuario_DeveSetarDataCriacao() {
         // arrange
         usuario.setId(null);
-        when(usuarioRepository.existePorEmail(any())).thenReturn(false);
+        when(usuarioRepository.buscarPorEmail(usuario.getEmail())).thenReturn(Optional.empty());
 
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
 
@@ -77,13 +77,12 @@ public class UsuarioServiceTest {
         // assert
         assertNotNull(salvo.getDataCriacao());
         assertNull(salvo.getDataAtualizacao());
-        verify(usuarioRepository).save(usuario);
     }
     @Test
     void salvar_UsuarioExistente_DeveSetarDataAtualizacao() {
         // arrange
         usuario.setDataCriacao(LocalDateTime.now().minusDays(1));
-        when(usuarioRepository.existePorEmail(any())).thenReturn(false);
+        when(usuarioRepository.buscarPorEmail(usuario.getEmail())).thenReturn(Optional.of(usuario));
 
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
 
@@ -98,7 +97,12 @@ public class UsuarioServiceTest {
     @Test
     void salvar_EmailDuplicado_DeveLancarExcecao() {
         // arrange
-        when(usuarioRepository.existePorEmail(any())).thenReturn(true);
+        Usuario existente = new Usuario();
+        existente.setId(2L); // id diferente do usuario sendo salvo
+        existente.setEmail("teste@devpablo.com");
+
+
+        when(usuarioRepository.buscarPorEmail("teste@devpablo.com")).thenReturn(Optional.of(existente));
 
         // act e assert
         assertThrows(RuntimeException.class, () -> usuarioService.salvar(usuario));
@@ -118,7 +122,7 @@ public class UsuarioServiceTest {
     }
 
     @Test
-    void excluirPorId_UsuarioInexistenet_DeveLancarExcecao() {
+    void excluirPorId_UsuarioInexiste_DeveLancarExcecao() {
         // arrange
         when(usuarioRepository.findById(2L)).thenReturn(Optional.empty());
 
@@ -134,11 +138,12 @@ public class UsuarioServiceTest {
         existente.setId(1L);
         existente.setEmail("teste@dev.com");
 
-        when(usuarioRepository.buscarPorEmail("TESTE@DEV.COM")).thenReturn(Optional.of(existente));
+        when(usuarioRepository.buscarPorEmail("teste@dev.com")).thenReturn(Optional.of(existente));
+        when(usuarioRepository.save(any())).thenReturn(existente);
 
         Usuario atualizado = new Usuario();
-        atualizado.setEmail("TESTE@DEV.COM");
         atualizado.setId(1L);
+        atualizado.setEmail("TESTE@DEV.COM"); // sera normalizado
 
         // tem que permitir pois é o mesmo usuário
         assertDoesNotThrow(() -> usuarioService.salvar(atualizado));

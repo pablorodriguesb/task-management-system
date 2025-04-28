@@ -46,6 +46,9 @@ public class TarefaService {
 
         // Metodo para salvar uma nova tarefa ou atualizar existente
         public Tarefa salvar(Tarefa tarefa) {
+            if (tarefa.getResponsavel() == null) {
+                throw new RuntimeException("Tarefa precisa ter um responsável");
+            }
         LocalDateTime agora = LocalDateTime.now();
 
             if (tarefa.getId() == null) {

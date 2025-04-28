@@ -192,11 +192,12 @@ public class CategoriaServiceTest {
         existente.setNome("Estudo");
         existente.setDataCriacao(LocalDateTime.now());
 
-        when(categoriaRepository.findById(1L)).thenReturn(Optional.of(existente));
+        when(categoriaRepository.buscarPorNome("Estudo")).thenReturn(List.of(existente));
         when(categoriaRepository.save(any())).thenReturn(existente);
 
         Categoria atualizada = categoriaService.salvar(existente);
-        assertNull(atualizada.getDataAtualizacao()); // deve alterar apos o ajuste no service
+
+        Assertions.assertNotNull(atualizada.getDataAtualizacao());
     }
     @Test
     void naoDeveSalvarCategoriaComNomeRepetido() {
