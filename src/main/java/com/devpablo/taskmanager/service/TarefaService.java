@@ -39,6 +39,11 @@ public class TarefaService {
             return tarefaRepository.findAll();
     }
 
+        // Metodo ordenado por id
+        public List<Tarefa> buscarTodasOrdenadasPorId() {
+        return tarefaRepository.findAllByOrderByIdAsc();
+        }
+
         // Metodo para buscar uma tarefa pelo ID
         public Optional<Tarefa> buscarPorId(Long id) {
             return tarefaRepository.findById(id);

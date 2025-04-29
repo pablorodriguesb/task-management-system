@@ -32,7 +32,7 @@ public class TarefaController {
 
     @GetMapping
     public List<TarefaResponseDTO> listarTodas() {
-        return tarefaService.buscarTodasTarefas()
+        return tarefaService.buscarTodasOrdenadasPorId()
                 .stream()
                 .map(this::converterParaDTO)
                 .toList();

@@ -27,4 +27,6 @@ public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
     );
 
     Long countByCategoria_Id(Long categoriaId);
+
+    List<Tarefa> findAllByOrderByIdAsc();
 }
