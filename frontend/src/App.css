@@ -5,6 +5,27 @@
   text-align: center;
 }
 
+body {
+  background: #f8fafc !important;
+}
+
+.card {
+  border-radius: 8px;
+  border: none;
+}
+
+.form-control:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px #1976d255;
+}
+
+.btn-primary {
+  background: #1976d2;
+  border: none;
+}
+.btn-primary:hover, .btn-primary:focus {
+  background: #135ca7;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
