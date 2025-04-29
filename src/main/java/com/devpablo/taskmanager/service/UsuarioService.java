@@ -64,13 +64,13 @@ public class UsuarioService {
 
     // validacao de email único antes de salvar
     private void validarEmailUnico(Usuario usuario) {
-        String emailNormalizado = usuario.getEmail().toLowerCase();
-        Optional<Usuario> existente =
-                usuarioRepository.buscarPorEmail(emailNormalizado);
-        if (existente.isPresent() && !existente.get().getId().equals(usuario.getId())) {
+        String emailNormalizado = usuario.getEmail().toLowerCase(); // Normaliza para lowercase
+        Optional<Usuario> existente = usuarioRepository.buscarPorEmail(emailNormalizado);
+
+        // Se existir um usuário com o email E o ID for diferente (ou novo cadastro)
+        if (existente.isPresent() && (usuario.getId() == null || !existente.get().getId().equals(usuario.getId()))) {
             throw new RuntimeException("Já existe usuário com este e-mail");
         }
-
-
     }
 }
+
