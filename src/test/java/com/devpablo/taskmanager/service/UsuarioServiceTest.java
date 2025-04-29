@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -22,6 +23,9 @@ public class UsuarioServiceTest {
 
     @Mock
     private UsuarioRepository usuarioRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UsuarioService usuarioService;
@@ -69,6 +73,7 @@ public class UsuarioServiceTest {
         usuario.setId(null);
         when(usuarioRepository.buscarPorEmail(usuario.getEmail())).thenReturn(Optional.empty());
 
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("senhaHashada");
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
 
         // act
@@ -84,6 +89,7 @@ public class UsuarioServiceTest {
         usuario.setDataCriacao(LocalDateTime.now().minusDays(1));
         when(usuarioRepository.buscarPorEmail(usuario.getEmail())).thenReturn(Optional.of(usuario));
 
+        when(passwordEncoder.encode(any(CharSequence.class))).thenReturn("senhaHashada");
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuario);
 
         // act
