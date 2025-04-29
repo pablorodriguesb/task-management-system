@@ -4,78 +4,69 @@ const API_URL = 'http://localhost:8080';
 
 export const api = axios.create({
   baseURL: API_URL,
+  withCredentials: true, // Essencial para enviar JSESSIONID
   headers: {
     'Content-Type': 'application/json'
   }
 });
 
-// Interceptor para adicionar token JWT em todas as requisições (se usar JWT)
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-/**
- * Login com Spring Security padrão
- * Em dev, use user / senha que aparece no console do Spring Boot
- */
-export async function loginWithEmail(email, password) {
+export async function loginWithEmail(email: string, password: string) {
   try {
-    const loginResponse = await axios.post(`${API_URL}/login`,
+    // Spring Security espera username/password em form-urlencoded
+    await axios.post(
+      `${API_URL}/login`,
       `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
-      { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+      {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        withCredentials: true // ESSENCIAL para manter sessão!
+      }
     );
 
-    // Se usar JWT, ajuste aqui para pegar o token
-    const token = loginResponse.headers.authorization;
-    if (token) {
-      localStorage.setItem('token', token.replace('Bearer ', ''));
-    }
-
-    // Busca dados do usuário (opcional, se existir endpoint)
-    try {
-      const userResponse = await api.get('/usuarios/atual');
-      localStorage.setItem('usuario', JSON.stringify(userResponse.data));
-      return userResponse.data;
-    } catch {
-      return { email, authenticated: true };
-    }
-  } catch (error) {
-    throw new Error(error?.response?.data?.message || 'Credenciais inválidas');
+    // Após login bem-sucedido, já tem JSESSIONID nos cookies (session)
+    // Agora busca dados do usuário logado:
+    const userResponse = await api.get('/usuarios/atual');
+    localStorage.setItem('usuario', JSON.stringify(userResponse.data));
+    return userResponse.data;
+  } catch (error: any) {
+    throw new Error(
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      'Credenciais inválidas'
+    );
   }
 }
-
 /**
  * Cadastro de novo usuário
  */
-export async function registerWithEmail(email, password, nome) {
+export async function registerWithEmail(email: string, password: string, nome: string) {
   try {
-    const response = await api.post('/usuarios', { nome, email, senha: password });
+    const response = await api.post('/usuarios', { 
+      nome, 
+      email, 
+      senha: password 
+    });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     throw new Error(
-      error?.response?.data?.mensagem ||
+      error?.response?.data?.mensagem || 
       error?.response?.data?.message ||
       'Erro ao cadastrar usuário'
     );
   }
 }
 
-/**
- * Logout
- */
-export function logout() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('usuario');
+
+export async function logout() {
+  try {
+    // Chama endpoint de logout do Spring Security
+    await api.post('/logout');
+  } finally {
+    // Limpa dados locais
+    localStorage.removeItem('usuario');
+  }
 }
 
-/**
- * Verifica se está autenticado
- */
 export function isAuthenticated() {
-  const token = localStorage.getItem('token');
-  return !!token;
+  // Verifica se existe usuário no localStorage
+  return !!localStorage.getItem('usuario');
 }
