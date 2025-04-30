@@ -14,13 +14,13 @@ import java.util.List;
 @Repository
 public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
 
-    @Query("SELECT t FROM Tarefa t WHERE t.responsavel.id = :usuarioId")
+    @Query("SELECT t FROM Tarefa t WHERE t.usuario.id = :usuarioId")
     List<Tarefa> buscarPorUsuarioId(@Param("usuarioId") Long usuarioId);
 
     @Query("SELECT t FROM Tarefa t WHERE t.status = :status")
     List<Tarefa> buscarPorStatus(@Param("status") StatusTarefa status);
 
-    @Query("SELECT t FROM Tarefa t WHERE t.responsavel.id = :usuarioId AND t.status = :status")
+    @Query("SELECT t FROM Tarefa t WHERE t.usuario.id = :usuarioId AND t.status = :status")
     List<Tarefa> buscarPorUsuarioIdEStatus(
             @Param("usuarioId") Long usuarioId,
             @Param("status") StatusTarefa status
