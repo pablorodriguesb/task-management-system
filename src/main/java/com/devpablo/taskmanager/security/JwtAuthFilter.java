@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -29,7 +30,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         String header = request.getHeader("Authorization");
         String token = null;
 
@@ -38,16 +39,31 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         if (token != null && jwtUtils.validateToken(token)) {
+            // 1. Extrai o email do token JWT
             String email = jwtUtils.getEmailFromToken(token);
+            System.out.println("Email extraído do token: " + email);
+
+            // 2. Busca o usuário no banco
             Usuario usuario = usuarioRepository.buscarPorEmail(email).orElse(null);
+            System.out.println("Usuário encontrado: " + (usuario != null ? "SIM" : "NÃO"));
 
             if (usuario != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(usuario,
-                                null, java.util.Collections.emptyList()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                // 3. Cria o objeto Authentication
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(
+                                usuario.getEmail(), // Usar o email aqui
+                                null,
+                                Collections.emptyList()
+                        );
+
+                // 4. Define detalhes adicionais
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                // 5. Armazena no contexto de segurança
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                // Agora sim podemos usar authentication.getName()
+                System.out.println("Email da autenticação: " + authentication.getName());
             } else {
                 response.sendError(HttpStatus.UNAUTHORIZED.value(), "Usuário inválido ou não encontrado");
                 return;
@@ -55,4 +71,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
     }
+
 }

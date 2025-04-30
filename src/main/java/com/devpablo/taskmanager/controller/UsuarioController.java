@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -64,19 +65,27 @@ public class UsuarioController {
 
     // Endpoint para buscar o usuario atual
     @GetMapping("/atual")
-    public ResponseEntity <UsuarioResponseDTO> getUsuarioAtual (Principal principal) {
-        if (principal == null) {
+    public ResponseEntity<UsuarioResponseDTO> getUsuarioAtual(Authentication authentication) {
+        if (authentication == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+
         try {
-            String email = principal.getName();
+            String email = authentication.getName();
+
+            System.out.println("Email do usuário autenticado: " + email);
+
             Usuario usuario = usuarioService.buscarPorEmail(email)
                     .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
             return ResponseEntity.ok(converterParaResponseDTO(usuario));
         } catch (Exception e) {
+            // Log da exceção real para debug
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
 
     // Metodo auxiliar para converter entidade em DTO de resposta
     private UsuarioResponseDTO converterParaResponseDTO(Usuario usuario) {
