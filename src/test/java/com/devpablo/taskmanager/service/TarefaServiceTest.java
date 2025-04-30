@@ -36,9 +36,9 @@ public class TarefaServiceTest {
         // seguindo o padrao AAA, comecamos no arrange (preparando dados e mocks)
         Tarefa novaTarefa = new Tarefa();
         // adicionando um responsavel mockado
-        Usuario responsavel = new Usuario();
-        responsavel.setId(1L);
-        novaTarefa.setResponsavel(responsavel);
+        Usuario usuario = new Usuario();
+        usuario.setId(1L);
+        novaTarefa.setUsuario(usuario);
         // configura o mock para retornar a tarefa com ID que foi simulado
         when(tarefaRepository.save(Mockito.any(Tarefa.class)))
                 .thenAnswer(inv -> {
@@ -64,7 +64,7 @@ public class TarefaServiceTest {
         // adicionando um responsavel mockado
         Usuario responsavel = new Usuario();
         responsavel.setId(1L);
-        tarefaExistente.setResponsavel(responsavel);
+        tarefaExistente.setUsuario(responsavel);
 
         // configura o mock para retornar a tarefa atualizada
         when(tarefaRepository.save(tarefaExistente)).thenReturn(tarefaExistente);
