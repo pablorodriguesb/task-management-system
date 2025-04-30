@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getTarefas, createTarefa, updateTarefa, deleteTarefa, Tarefa } from "../services/tarefas";
+import { logout } from "../services/auth";
 
 const PRIORIDADES = [
   { label: "Baixa", value: "BAIXA" },
@@ -8,11 +10,7 @@ const PRIORIDADES = [
   { label: "Urgente", value: "URGENTE" },
 ];
 
-interface DashboardProps {
-  onLogout: () => void;
-}
-
-const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
+const Tarefas: React.FC = () => {
   const [tarefas, setTarefas] = useState<Tarefa[]>([]);
   const [titulo, setTitulo] = useState("");
   const [descricao, setDescricao] = useState("");
@@ -20,6 +18,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [editando, setEditando] = useState<Tarefa | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     buscarTarefas();
@@ -29,8 +28,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     setErro(""); setSucesso("");
     try {
       const lista = await getTarefas();
+      console.log("Tarefas obtidas:", lista);
       setTarefas(lista);
-    } catch {
+    } catch (error) {
+      console.error("Erro ao buscar:", error);
       setErro("Erro ao buscar tarefas");
     }
   }
@@ -81,6 +82,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     }
   }
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -96,7 +102,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         <button
           className="btn btn-danger"
           style={{ position: "absolute", right: 24, top: 24 }}
-          onClick={onLogout}
+          onClick={handleLogout}
         >
           Sair
         </button>
@@ -104,6 +110,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           <span style={{ fontWeight: 'bold', fontSize: 30 }}>Minhas</span>
           <span style={{ fontWeight: 'lighter', fontSize: 30 }}> Tarefas</span>
         </div>
+
+        {/* FORMULÁRIO DE NOVA TAREFA */}
         <form onSubmit={handleSubmit} className="row g-2 mb-3" style={{ flexWrap:"wrap" }}>
           <div className="col-sm-12 col-md-3">
             <input className="form-control" type="text" placeholder="Título" value={titulo} onChange={e => setTitulo(e.target.value)} required />
@@ -129,40 +137,50 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
             )}
           </div>
         </form>
+
+        {/* MENSAGENS DE FEEDBACK */}
         {erro && <div className="alert alert-danger">{erro}</div>}
         {sucesso && <div className="alert alert-success">{sucesso}</div>}
+
+        {/* TABELA DE TAREFAS */}
         <div className="table-responsive">
-          <table className="table table-striped mt-4">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Título</th>
-                <th>Descrição</th>
-                <th>Status</th>
-                <th>Prioridade</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tarefas.map(tarefa => (
-                <tr key={tarefa.id}>
-                  <td>{tarefa.id}</td>
-                  <td>{tarefa.titulo}</td>
-                  <td>{tarefa.descricao}</td>
-                  <td>{tarefa.status}</td>
-                  <td>{tarefa.prioridade}</td>
-                  <td>
-                    <button className="btn btn-sm btn-info me-2" onClick={() => handleEdit(tarefa)}>Editar</button>
-                    <button className="btn btn-sm btn-danger" onClick={() => handleDelete(tarefa.id)}>Remover</button>
-                  </td>
+          {tarefas.length === 0 ? (
+            <div className="alert alert-info text-center mt-3">
+              Você ainda não tem tarefas cadastradas. Adicione sua primeira tarefa usando o formulário acima!
+            </div>
+          ) : (
+            <table className="table table-striped mt-4">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Título</th>
+                  <th>Descrição</th>
+                  <th>Status</th>
+                  <th>Prioridade</th>
+                  <th>Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {tarefas.map(tarefa => (
+                  <tr key={tarefa.id}>
+                    <td>{tarefa.id}</td>
+                    <td>{tarefa.titulo}</td>
+                    <td>{tarefa.descricao}</td>
+                    <td>{tarefa.status}</td>
+                    <td>{tarefa.prioridade}</td>
+                    <td>
+                      <button className="btn btn-sm btn-info me-2" onClick={() => handleEdit(tarefa)}>Editar</button>
+                      <button className="btn btn-sm btn-danger" onClick={() => handleDelete(tarefa.id)}>Remover</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default Dashboard;
+export default Tarefas;

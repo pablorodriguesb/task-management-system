@@ -1,24 +1,33 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { loginWithEmail } from "../services/auth";
 
-interface LoginProps {
-  onLogin: () => void;
-  onNavigateToRegister: () => void;
-}
-
-export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
+// Removemos os props pois agora usamos navegação direta
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [erro, setErro] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErro("");
+
+    if (!email || !password) {
+      setErro("Preencha todos os campos");
+      return;
+    }
+
     try {
+      setIsLoading(true);
       await loginWithEmail(email, password);
-      onLogin();
+      // Navegação programática após login bem-sucedido
+      navigate("/tarefas");
     } catch (error: any) {
-      setErro(error.message);
+      setErro(error.message || "Erro ao fazer login");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -39,16 +48,36 @@ export default function Login({ onLogin, onNavigateToRegister }: LoginProps) {
         </div>
         <div className="mb-3 text-center" style={{ fontSize: 17 }}>Faça login para começar</div>
         <form onSubmit={handleSubmit}>
-          <input type="email" className="form-control mb-2" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-          <input type="password" className="form-control mb-3" placeholder="Senha" value={password} onChange={e => setPassword(e.target.value)} required />
-          <button type="submit" className="btn btn-primary w-100">Entrar</button>
+          <input 
+            type="email" 
+            className="form-control mb-2" 
+            placeholder="Email" 
+            value={email} 
+            onChange={e => setEmail(e.target.value)} 
+            required 
+          />
+          <input 
+            type="password" 
+            className="form-control mb-3" 
+            placeholder="Senha" 
+            value={password} 
+            onChange={e => setPassword(e.target.value)} 
+            required 
+          />
+          <button 
+            type="submit" 
+            className="btn btn-primary w-100"
+            disabled={isLoading}
+          >
+            {isLoading ? "Carregando..." : "Entrar"}
+          </button>
           {erro && <div className="alert alert-danger mt-2">{erro}</div>}
         </form>
         <div className="text-center mt-3">
           <button
             type="button"
             className="btn btn-link"
-            onClick={onNavigateToRegister}
+            onClick={() => navigate("/register")}
             style={{ textDecoration: "none", color: "#1976d2" }}
           >
             Criar Conta

@@ -1,17 +1,16 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { registerWithEmail } from "../services/auth";
 
-interface RegisterProps {
-  onRegister: () => void;
-  onNavigateToLogin: () => void;
-}
-
-const Register: React.FC<RegisterProps> = ({ onRegister, onNavigateToLogin }) => {
+// Removemos props e usamos navegação direta
+const Register: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -22,11 +21,15 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onNavigateToLogin }) =>
       return;
     }
     try {
+      setIsLoading(true);
       await registerWithEmail(email, password, nome);
-      setSucesso("Cadastro realizado! Faça login.");
-      setTimeout(onRegister, 1200); // Volta para login após sucesso
+      setSucesso("Cadastro realizado! Redirecionando para login...");
+      // Navegação programática após cadastro bem-sucedido
+      setTimeout(() => navigate("/login"), 1200);
     } catch (error: any) {
       setErro(error.message || "Erro ao registrar. Tente novamente.");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -50,7 +53,13 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onNavigateToLogin }) =>
           <input type="text" className="form-control mb-2" placeholder="Nome" value={nome} onChange={e => setNome(e.target.value)} required />
           <input type="email" className="form-control mb-2" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
           <input type="password" className="form-control mb-3" placeholder="Senha" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
-          <button type="submit" className="btn btn-primary w-100">Cadastrar</button>
+          <button 
+            type="submit" 
+            className="btn btn-primary w-100"
+            disabled={isLoading}
+          >
+            {isLoading ? "Carregando..." : "Cadastrar"}
+          </button>
           {sucesso && <div className="alert alert-success mt-2">{sucesso}</div>}
           {erro && <div className="alert alert-danger mt-2">{erro}</div>}
         </form>
@@ -58,7 +67,7 @@ const Register: React.FC<RegisterProps> = ({ onRegister, onNavigateToLogin }) =>
           <button
             type="button"
             className="btn btn-link"
-            onClick={onNavigateToLogin}
+            onClick={() => navigate("/login")}
             style={{ textDecoration: "none", color: "#1976d2" }}
           >
             Já tenho conta
