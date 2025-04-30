@@ -31,7 +31,7 @@ public class Usuario {
     @Column(nullable = false)
     private String senha;
 
-    @OneToMany(mappedBy = "responsavel", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
     private List<Tarefa> tarefas = new ArrayList<>();
 
     @Column(name = "data_criacao")

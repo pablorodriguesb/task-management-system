@@ -47,7 +47,7 @@ public class Tarefa {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id")
-    private Usuario responsavel;
+    private Usuario usuario;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
