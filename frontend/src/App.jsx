@@ -1,36 +1,47 @@
-import React, { useState } from "react";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import { isAuthenticated, logout } from "./services/auth";
+import Tarefas from "./pages/Tarefas"; // Novo componente (era Dashboard anteriormente)
+import { isAuthenticated } from "./services/auth";
+
+// Componente para rotas protegidas
+const ProtectedRoute = ({ children }) => {
+  return isAuthenticated() ? children : <Navigate to="/login" replace />;
+};
+
 
 export default function App() {
-  const [view, setView] = useState(isAuthenticated() ? "dashboard" : "login");
-
-  const handleLogin = () => setView("dashboard");
-  const handleLogout = () => {
-    logout();
-    setView("login");
-  };
-  const handleRegister = () => setView("login");
-
   return (
-    <>
-      {view === "login" && (
-        <Login
-          onLogin={handleLogin}
-          onNavigateToRegister={() => setView("register")}
+    <Router>
+      <Routes>
+        {/* Redireciona para login ou tarefas dependendo da autenticação */}
+        <Route 
+          path="/" 
+          element={
+            isAuthenticated() ? 
+              <Navigate to="/tarefas" replace /> : 
+              <Navigate to="/login" replace />
+          } 
         />
-      )}
-      {view === "register" && (
-        <Register
-          onRegister={handleRegister}
-          onNavigateToLogin={() => setView("login")}
+
+        {/* Rotas públicas */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Rota protegida para tarefas */}
+        <Route 
+          path="/tarefas" 
+          element={
+            <ProtectedRoute>
+              <Tarefas />
+            </ProtectedRoute>
+          } 
         />
-      )}
-      {view === "dashboard" && (
-        <Dashboard onLogout={handleLogout} />
-      )}
-    </>
+
+        {/* Redireciona rotas não encontradas */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Router>
   );
 }
