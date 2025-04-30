@@ -81,6 +81,28 @@ const Tarefas: React.FC = () => {
       setErro(err?.message || "Erro ao deletar tarefa!");
     }
   }
+  async function handleStatusChange(id, novoStatus) {
+    try {
+      const tarefaAtual = tarefas.find(t => t.id === id);
+      if (!tarefaAtual) {
+        setErro("Tarefa não encontrada!");
+        return;
+      }
+      await updateTarefa(id, {
+        titulo: tarefaAtual.titulo,
+        descricao: tarefaAtual.descricao,
+        prioridade: tarefaAtual.prioridade,
+        status: novoStatus,
+        usuarioId: tarefaAtual.usuarioId // <-- use usuarioId!
+      });
+      setSucesso("Status atualizado com sucesso!");
+      buscarTarefas();
+    } catch (err) {
+      setErro(err.message || "Erro ao atualizar status");
+    }
+  }
+  
+
 
   const handleLogout = () => {
     logout();
@@ -98,21 +120,24 @@ const Tarefas: React.FC = () => {
       padding: 24
     }}>
       <div className="card shadow p-4" style={{ maxWidth: 1000, width: "100%", marginTop: 32, position: "relative" }}>
-        {/* BOTÃO SAIR NO TOPO DIREITA DENTRO DO CARD */}
-        <button
-          className="btn btn-danger"
-          style={{ position: "absolute", right: 24, top: 24 }}
-          onClick={handleLogout}
-        >
-          Sair
-        </button>
-        <div className="mb-4 text-center">
-          <span style={{ fontWeight: 'bold', fontSize: 30 }}>Minhas</span>
-          <span style={{ fontWeight: 'lighter', fontSize: 30 }}> Tarefas</span>
+        {/* Header e botões */}
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <span style={{ fontWeight: 'bold', fontSize: 30 }}>Minhas</span>
+            <span style={{ fontWeight: 'lighter', fontSize: 30 }}> Tarefas</span>
+          </div>
+          <div>
+            <button className="btn btn-info me-2" onClick={() => navigate("/painel")}>
+              Ver Estatísticas
+            </button>
+            <button className="btn btn-danger" onClick={handleLogout}>
+              Sair
+            </button>
+          </div>
         </div>
 
         {/* FORMULÁRIO DE NOVA TAREFA */}
-        <form onSubmit={handleSubmit} className="row g-2 mb-3" style={{ flexWrap:"wrap" }}>
+        <form className="row g-2 mb-3" style={{ flexWrap: "wrap" }} onSubmit={handleSubmit}>
           <div className="col-sm-12 col-md-3">
             <input className="form-control" type="text" placeholder="Título" value={titulo} onChange={e => setTitulo(e.target.value)} required />
           </div>
@@ -124,6 +149,7 @@ const Tarefas: React.FC = () => {
               {PRIORIDADES.map(({ label, value }) => (
                 <option key={value} value={value}>{label}</option>
               ))}
+              {/* Opções */}
             </select>
           </div>
           <div className="col-sm-12 col-md-3 d-flex">
@@ -166,7 +192,19 @@ const Tarefas: React.FC = () => {
                     <td>{tarefa.id}</td>
                     <td>{tarefa.titulo}</td>
                     <td>{tarefa.descricao}</td>
-                    <td>{tarefa.status}</td>
+                    <td>
+                      <select
+                        className="form-select form-select-sm"
+                        value={tarefa.status}
+                        onChange={(e) => handleStatusChange(tarefa.id, e.target.value)}
+                      >
+                        <option value="PENDENTE">Pendente</option>
+                        <option value="EM_ANDAMENTO">Em Andamento</option>
+                        <option value="CONCLUIDA">Concluída</option>
+                        <option value="CANCELADA">Cancelada</option>
+                      </select>
+                    </td>
+
                     <td>{tarefa.prioridade}</td>
                     <td>
                       <button className="btn btn-sm btn-info me-2" onClick={() => handleEdit(tarefa)}>Editar</button>

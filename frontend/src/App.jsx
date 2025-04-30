@@ -2,8 +2,9 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Tarefas from "./pages/Tarefas"; // Novo componente (era Dashboard anteriormente)
+import Tarefas from "./pages/Tarefas";
 import { isAuthenticated } from "./services/auth";
+import Painel from "./pages/Painel";
 
 // Componente para rotas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -16,13 +17,22 @@ export default function App() {
     <Router>
       <Routes>
         {/* Redireciona para login ou tarefas dependendo da autenticação */}
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
-            isAuthenticated() ? 
-              <Navigate to="/tarefas" replace /> : 
+            isAuthenticated() ?
+              <Navigate to="/tarefas" replace /> :
               <Navigate to="/login" replace />
-          } 
+          }
+        />
+
+        <Route
+          path="/painel"
+          element={
+            <ProtectedRoute>
+              <Painel />
+            </ProtectedRoute>
+          }
         />
 
         {/* Rotas públicas */}
@@ -30,13 +40,13 @@ export default function App() {
         <Route path="/register" element={<Register />} />
 
         {/* Rota protegida para tarefas */}
-        <Route 
-          path="/tarefas" 
+        <Route
+          path="/tarefas"
           element={
             <ProtectedRoute>
               <Tarefas />
             </ProtectedRoute>
-          } 
+          }
         />
 
         {/* Redireciona rotas não encontradas */}
