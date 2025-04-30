@@ -22,8 +22,5 @@ public record TarefaRequestDTO (
     @FutureOrPresent(message = "Data de vencimento deve ser no presente ou futuro")
     LocalDateTime dataVencimento,
 
-    @NotNull(message = "Responsável é obrigatório")
-    Long responsavelId,
-
     Long categoriaId
     ){}
